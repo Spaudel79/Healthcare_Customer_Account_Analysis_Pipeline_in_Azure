@@ -1,0 +1,9 @@
+{
+	"name": "oct-adf-factory",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "1ce6aee8-d382-4f79-bd3b-06f98d0bb7e8",
+		"tenantId": "9ea4bdb9-831e-405c-b63a-9d42c077120c"
+	}
+}

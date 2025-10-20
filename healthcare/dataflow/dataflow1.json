@@ -1,0 +1,56 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "datset_for_dataflow_json_source",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dataset_sink_for_dataflow",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filteronSALESID"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          SaleID as double,",
+				"          CustomerID as double,",
+				"          ProductID as integer,",
+				"          SaleDate as string,",
+				"          Quantity as integer,",
+				"          TotalAmount as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'arrayOfDocuments') ~> source1",
+				"source1 filter(!isNull(SaleID)) ~> filteronSALESID",
+				"filteronSALESID sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          {[} as string",
+				"     ),",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

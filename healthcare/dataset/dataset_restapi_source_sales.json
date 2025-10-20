@@ -1,0 +1,13 @@
+{
+	"name": "dataset_restapi_source_sales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedservice_restapi_source_sales",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
