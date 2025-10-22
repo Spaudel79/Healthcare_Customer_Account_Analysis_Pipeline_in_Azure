@@ -13,6 +13,52 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/dataset_restapi_source_sales')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedservice_restapi_source_sales",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_sink_for_dataflow')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedservices_sink_for_dataflow",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "test-output"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "[",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataset_sink_gen2_json')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -103,58 +149,91 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataset_config_file_adls_source')]",
+			"name": "[concat(parameters('factoryName'), '/generic_ds_for_adlsgen2_source')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "linkedservice_config_file_adls_source",
+					"referenceName": "generic_ls_adls_gen2",
 					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"file_path": {
+						"type": "string"
+					},
+					"file_name": {
+						"type": "string"
+					}
 				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "load_config.csv",
-						"folderPath": "configs",
-						"fileSystem": "healthcare"
+						"fileName": {
+							"value": "@dataset().file_name",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().file_path",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
 				},
-				"schema": [
-					{
-						"name": "database",
-						"type": "String"
-					},
-					{
-						"name": "datasource",
-						"type": "String"
-					},
-					{
-						"name": "tablename",
-						"type": "String"
-					},
-					{
-						"name": "loadtype",
-						"type": "String"
-					},
-					{
-						"name": "watermark",
-						"type": "String"
-					},
-					{
-						"name": "is_active",
-						"type": "String"
-					},
-					{
-						"name": "targetpath",
-						"type": "String"
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/generic_ds_from_azuresql_db_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "generic_ls_sqlserver_database_source",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"db_name": {
+							"value": "@dataset().db_name",
+							"type": "Expression"
+						}
 					}
-				]
+				},
+				"parameters": {
+					"db_name": {
+						"type": "string"
+					},
+					"schema_name": {
+						"type": "string"
+					},
+					"table_name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema_name",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table_name",
+						"type": "Expression"
+					}
+				}
 			},
 			"dependsOn": []
 		},
@@ -202,9 +281,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/dataset_config_file_adls_source')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
@@ -264,7 +341,8 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/datset_for_dataflow_json_source')]"
+				"[concat(variables('factoryId'), '/datasets/datset_for_dataflow_json_source')]",
+				"[concat(variables('factoryId'), '/datasets/dataset_sink_for_dataflow')]"
 			]
 		},
 		{
@@ -419,6 +497,7 @@
 				"lastPublishTime": "2025-10-18T16:35:21Z"
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dataset_restapi_source_sales')]",
 				"[concat(variables('factoryId'), '/datasets/dataset_sink_sales_gen2')]",
 				"[concat(variables('factoryId'), '/datasets/dataset_sink_gen2_json')]",
 				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"

@@ -8,6 +8,18 @@
 		"datasett_json_source_dataflow_accountKey": {
 			"value": ""
 		},
+		"generic_ls_adls_gen2_accountKey": {
+			"value": ""
+		},
+		"generic_ls_databricks_accessToken": {
+			"value": ""
+		},
+		"generic_ls_sqlserver_database_source_password": {
+			"value": ""
+		},
+		"linkedservice_config_file_adls_source_accountKey": {
+			"value": ""
+		},
 		"linkedservice_dataflow_bank_csv_source_accountKey": {
 			"value": ""
 		},
@@ -35,20 +47,26 @@
 		"linkedservices_sink_for_dataflow_accountKey": {
 			"value": ""
 		},
-		"linkedservice_config_file_adls_source_accountKey": {
-			"value": ""
-		},
-		"generic_ls_sqlserver_database_source_password": {
-			"value": ""
-		},
-		"generic_ls_adls_gen2_accountKey": {
-			"value": ""
-		},
 		"datasett_json_source_dataflow_properties_typeProperties_url": {
 			"value": "https://octstoragelatest.dfs.core.windows.net/"
 		},
+		"generic_ls_adls_gen2_properties_typeProperties_url": {
+			"value": "https://octstoragelatest.dfs.core.windows.net/"
+		},
+		"generic_ls_sqlserver_database_source_properties_typeProperties_server": {
+			"value": "octsqlbasedserver.database.windows.net"
+		},
+		"generic_ls_sqlserver_database_source_properties_typeProperties_database": {
+			"value": "@{linkedService().db_name}"
+		},
+		"generic_ls_sqlserver_database_source_properties_typeProperties_userName": {
+			"value": "adminsaap"
+		},
 		"linkedservice_api_sales_http_properties_typeProperties_url": {
 			"value": "https://storage.googleapis.com/kagglesdsdata/datasets/6838784/10999635/sales_sample.json?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20251017%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251017T142452Z&X-Goog-Expires=259200&X-Goog-SignedHeaders=host&X-Goog-Signature=9802af69af1004620850b10e960e74ce8ce0eea6a10d70ae76efc8a1c6be6c5a30b03b6e654ff9109cefab162aeed59598962771ae9c7edfdf179c813c0cc62cf4b25179b6a0e7cccff73fef51499bff9517a4e27b13042cba8897d2d9edeac82bef950927a05aa0298f24f8e0df619eeb8fea75136b47474fedd55e792f1f535ec2a8b17ebd05328a4fbfb6e950087b9753bccbec7bc718fb6ec09b0663e230f588857cdf46c2cc9c70cf3efb17191eace4353d9de79277ecc1c31870957ddccfbe4c1ba83fbdd054dcc2c0ef35a601697c4f76917cdaf1709a59885857c47abbf96d8ad9b22a45cc3232756b108c30d7400e4cde23fbd937c23e304c9472c4"
+		},
+		"linkedservice_config_file_adls_source_properties_typeProperties_url": {
+			"value": "https://octstoragelatest.dfs.core.windows.net/"
 		},
 		"linkedservice_dataflow_bank_csv_source_properties_typeProperties_url": {
 			"value": "https://octstoragelatest.dfs.core.windows.net/"
@@ -78,21 +96,6 @@
 			"value": "https://octstoragelatest.dfs.core.windows.net/"
 		},
 		"linkedservices_sink_for_dataflow_properties_typeProperties_url": {
-			"value": "https://octstoragelatest.dfs.core.windows.net/"
-		},
-		"linkedservice_config_file_adls_source_properties_typeProperties_url": {
-			"value": "https://octstoragelatest.dfs.core.windows.net/"
-		},
-		"generic_ls_sqlserver_database_source_properties_typeProperties_server": {
-			"value": "octsqlbasedserver.database.windows.net"
-		},
-		"generic_ls_sqlserver_database_source_properties_typeProperties_database": {
-			"value": "@{linkedService().db_name}"
-		},
-		"generic_ls_sqlserver_database_source_properties_typeProperties_userName": {
-			"value": "adminsaap"
-		},
-		"generic_ls_adls_gen2_properties_typeProperties_url": {
 			"value": "https://octstoragelatest.dfs.core.windows.net/"
 		}
 	}
