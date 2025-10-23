@@ -291,7 +291,20 @@
 											"secureOutput": false,
 											"secureInput": false
 										},
-										"userProperties": []
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "AzureDatabricksDeltaLakeSource"
+											},
+											"dataset": {
+												"referenceName": "generic_dataset_for_audit_parquet_databricks",
+												"type": "DatasetReference",
+												"parameters": {
+													"schema_name": "audit",
+													"table_name": "load_logs"
+												}
+											}
+										}
 									}
 								]
 							}
