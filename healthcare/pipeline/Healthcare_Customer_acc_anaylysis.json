@@ -51,6 +51,10 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup1').output.value",
+						"type": "Expression"
+					},
 					"activities": [
 						{
 							"name": "Check_if_file_exists",
@@ -85,6 +89,7 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -105,6 +110,10 @@
 							],
 							"userProperties": [],
 							"typeProperties": {
+								"expression": {
+									"value": "@activity('Check_if_file_exists').output.exists",
+									"type": "Expression"
+								},
 								"ifTrueActivities": [
 									{
 										"name": "Archive",
@@ -117,11 +126,7 @@
 											"secureOutput": false,
 											"secureInput": false
 										},
-										"userProperties": [
-											{
-												"name": ""
-											}
-										],
+										"userProperties": [],
 										"typeProperties": {
 											"source": {
 												"type": "ParquetSource",
@@ -177,7 +182,7 @@
 												"parameters": {
 													"container": "healthcare",
 													"file_path": "@concat(item().targetpath, '/archive/', formatDateTime(utcNow(), 'yyyy'), '/', formatDateTime(utcNow(), '%M'), '/', formatDateTime(utcNow(), '%d'))",
-													"file_name": "@split(item().tablename,'.')[1]"
+													"file_name": "@concat(item().tablename, '.parquet')"
 												}
 											}
 										]
@@ -188,6 +193,8 @@
 						{
 							"name": "If Condition2",
 							"type": "IfCondition",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "If Condition1",
@@ -218,7 +225,10 @@
 										"typeProperties": {
 											"source": {
 												"type": "AzureSqlSource",
-												"sqlReaderQuery": "@concat('select * ,','''',item().datasource,'''' as datasource from', item().tablename)",
+												"sqlReaderQuery": {
+													"value": "@concat('select * ,','''',item().datasource,'''' as datasource from', item().tablename)",
+													"type": "Expression"
+												},
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
 											},
