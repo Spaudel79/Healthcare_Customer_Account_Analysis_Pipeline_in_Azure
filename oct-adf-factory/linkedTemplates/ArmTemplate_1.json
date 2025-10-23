@@ -359,16 +359,15 @@
 					{
 						"name": "ForEach1",
 						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
 						"userProperties": [],
 						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup1').output.value",
+								"type": "Expression"
+							},
 							"activities": [
 								{
 									"name": "Check_if_file_exists",
@@ -393,7 +392,7 @@
 													"type": "Expression"
 												},
 												"file_name": {
-													"value": "@split(item().tablename,'.')[1]",
+													"value": "@concat(item().tablename, '.parquet')",
 													"type": "Expression"
 												}
 											}
@@ -424,6 +423,10 @@
 									],
 									"userProperties": [],
 									"typeProperties": {
+										"expression": {
+											"value": "@activity('Check_if_file_exists').output.exists",
+											"type": "Expression"
+										},
 										"ifTrueActivities": [
 											{
 												"name": "Archive",
@@ -436,11 +439,7 @@
 													"secureOutput": false,
 													"secureInput": false
 												},
-												"userProperties": [
-													{
-														"name": ""
-													}
-												],
+												"userProperties": [],
 												"typeProperties": {
 													"source": {
 														"type": "ParquetSource",
@@ -496,7 +495,7 @@
 														"parameters": {
 															"container": "healthcare",
 															"file_path": "@concat(item().targetpath, '/archive/', formatDateTime(utcNow(), 'yyyy'), '/', formatDateTime(utcNow(), '%M'), '/', formatDateTime(utcNow(), '%d'))",
-															"file_name": "@split(item().tablename,'.')[1]"
+															"file_name": "@concat(item().tablename, '.parquet')"
 														}
 													}
 												]
@@ -507,6 +506,8 @@
 								{
 									"name": "If Condition2",
 									"type": "IfCondition",
+									"state": "Inactive",
+									"onInactiveMarkAs": "Succeeded",
 									"dependsOn": [
 										{
 											"activity": "If Condition1",
@@ -627,6 +628,253 @@
 														}
 													}
 												}
+											}
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "ForEachtest",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup1').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata1",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "generic_dataset_parquet_format_source",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": "healthcare",
+												"file_path": {
+													"value": "@item().targetpath",
+													"type": "Expression"
+												},
+												"file_name": "@concat(item().tablename, '.parquet')"
+											}
+										},
+										"fieldList": [
+											"exists"
+										],
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "ParquetReadSettings"
+										}
+									}
+								},
+								{
+									"name": "If Conditiontest",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Get Metadata1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@activity('Get Metadata1').output.exists",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "archive test copy",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "ParquetSource",
+														"storeSettings": {
+															"type": "AzureBlobFSReadSettings",
+															"recursive": true,
+															"enablePartitionDiscovery": false
+														},
+														"formatSettings": {
+															"type": "ParquetReadSettings"
+														}
+													},
+													"sink": {
+														"type": "ParquetSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "ParquetWriteSettings"
+														}
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "generic_dataset_parquet_format_source",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": "healthcare",
+															"file_path": {
+																"value": "@item().targetpath",
+																"type": "Expression"
+															},
+															"file_name": "@concat(item().tablename, '.parquet')"
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "generic_dataset_parquet_format_source",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": "healthcare",
+															"file_path": {
+																"value": "@concat(item().targetpath, '/archive/', formatDateTime(utcNow(), 'yyyy'), '/', formatDateTime(utcNow(), '%M'), '/', formatDateTime(utcNow(), '%d'))",
+																"type": "Expression"
+															},
+															"file_name": {
+																"value": "@concat(item().tablename, '.parquet')",
+																"type": "Expression"
+															}
+														}
+													}
+												]
+											}
+										]
+									}
+								},
+								{
+									"name": "FullloadTest",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "If Conditiontest",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(item().loadtype,'Full')",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "FullloadtestCopy",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "ParquetSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "ParquetWriteSettings"
+														}
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "generic_ds_from_azuresql_db_source",
+														"type": "DatasetReference",
+														"parameters": {
+															"db_name": {
+																"value": "@item().database",
+																"type": "Expression"
+															},
+															"schema_name": {
+																"value": "@split(item().tablename,'.')[0]",
+																"type": "Expression"
+															},
+															"table_name": "@item().database"
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "generic_dataset_parquet_format_source",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": "healthcare",
+															"file_path": {
+																"value": "@item().targetpath",
+																"type": "Expression"
+															},
+															"file_name": {
+																"value": "@concat(item().tablename, '.parquet')",
+																"type": "Expression"
+															}
+														}
+													}
+												]
 											}
 										]
 									}
