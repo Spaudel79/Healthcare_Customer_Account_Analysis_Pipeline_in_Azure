@@ -1,0 +1,16 @@
+{
+	"name": "dataset_sink_sqldb",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedservice_sink_sqldb",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "retailjoin",
+			"table": "test"
+		}
+	}
+}

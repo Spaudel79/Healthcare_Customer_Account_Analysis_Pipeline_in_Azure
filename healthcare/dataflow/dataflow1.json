@@ -10,6 +10,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "Salesjson"
+				},
+				{
+					"dataset": {
+						"referenceName": "dataset_soruce_products_adls",
+						"type": "DatasetReference"
+					},
+					"name": "Productssource1"
 				}
 			],
 			"sinks": [
@@ -19,6 +26,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "dataset_sink_sqldb",
+						"type": "DatasetReference"
+					},
+					"name": "Finalsink"
 				}
 			],
 			"transformations": [
@@ -45,6 +59,27 @@
 				},
 				{
 					"name": "sortbasedonSaleID"
+				},
+				{
+					"name": "RemovingNUll"
+				},
+				{
+					"name": "filterrowexists"
+				},
+				{
+					"name": "checkNullproduct"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "rankbyQuantity"
+				},
+				{
+					"name": "FinalJOin"
+				},
+				{
+					"name": "removingduplicates"
 				}
 			],
 			"scriptLines": [
@@ -67,6 +102,16 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     documentForm: 'arrayOfDocuments') ~> Salesjson",
+				"source(output(",
+				"          ProductID as string,",
+				"          ProductName as string,",
+				"          Category as string,",
+				"          Price as string,",
+				"          StockQuantity as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Productssource1",
 				"Salesjson split(!isNull(SaleID),",
 				"     disjoint: false) ~> split1@(DatawithSalesID, DatawithID)",
 				"select1 derive(Quantity = iif(isNull(Quantity_30), iif(isNull(Quantity_60), Quantity_73, Quantity_60), Quantity_30)) ~> derivedColumnForValue3andcategory",
@@ -106,6 +151,33 @@
 				"union1 aggregate(groupBy(SaleID),",
 				"     each(match(name!= 'SaleID'), $$ = first($$))) ~> aggregate1",
 				"aggregate1 sort(asc(SaleID, true)) ~> sortbasedonSaleID",
+				"sortbasedonSaleID derive(ProductID = toInteger(iif(isNull(ProductID), 0, toInteger(ProductID))),",
+				"          SaleDate = iif(isNull(SaleDate), currentDate(), SaleDate),",
+				"          TotalAmount = toDouble(iif(isNull(TotalAmount), 0, toInteger(TotalAmount)))) ~> RemovingNUll",
+				"Productssource1 filter(not(isNull(ProductID)) ) ~> filterrowexists",
+				"filterrowexists derive(Category = iif(isNull(Category), 'Miscellaneous', Category),",
+				"          Price = iif(isNull(Price), 'Miscellaneous', Price)) ~> checkNullproduct",
+				"checkNullproduct window(over(Category),",
+				"     TotalQuantityByCategory = sum(toInteger(StockQuantity))) ~> window1",
+				"window1 rank(desc(StockQuantity, true),",
+				"     output(RankStock as long)) ~> rankbyQuantity",
+				"rankbyQuantity, RemovingNUll join(toInteger(Productssource1@ProductID) == RemovingNUll@ProductID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> FinalJOin",
+				"FinalJOin select(mapColumn(",
+				"          ProductID = Productssource1@ProductID,",
+				"          ProductName,",
+				"          Category,",
+				"          Price,",
+				"          StockQuantity,",
+				"          TotalQuantityByCategory,",
+				"          RankStock,",
+				"          ProductID = RemovingNUll@ProductID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> removingduplicates",
 				"selectforsalesID sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -115,7 +187,17 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"removingduplicates sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> Finalsink"
 			]
 		}
 	}
