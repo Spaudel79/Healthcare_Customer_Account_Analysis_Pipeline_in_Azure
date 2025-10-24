@@ -9,7 +9,7 @@
 						"referenceName": "datset_for_dataflow_json_source",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "Salesjson"
 				}
 			],
 			"sinks": [
@@ -39,6 +39,12 @@
 				},
 				{
 					"name": "selectforsalesID"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "sortbasedonSaleID"
 				}
 			],
 			"scriptLines": [
@@ -60,8 +66,8 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     documentForm: 'arrayOfDocuments') ~> source1",
-				"source1 split(!isNull(SaleID),",
+				"     documentForm: 'arrayOfDocuments') ~> Salesjson",
+				"Salesjson split(!isNull(SaleID),",
 				"     disjoint: false) ~> split1@(DatawithSalesID, DatawithID)",
 				"select1 derive(Quantity = iif(isNull(Quantity_30), iif(isNull(Quantity_60), Quantity_73, Quantity_60), Quantity_30)) ~> derivedColumnForValue3andcategory",
 				"split1@DatawithID select(mapColumn(",
@@ -97,6 +103,9 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectforsalesID",
+				"union1 aggregate(groupBy(SaleID),",
+				"     each(match(name!= 'SaleID'), $$ = first($$))) ~> aggregate1",
+				"aggregate1 sort(asc(SaleID, true)) ~> sortbasedonSaleID",
 				"selectforsalesID sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
