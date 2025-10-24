@@ -44,6 +44,12 @@
 		"linkedservice_sink_sales_gen2_accountKey": {
 			"value": ""
 		},
+		"linkedservice_sink_sqldb_password": {
+			"value": ""
+		},
+		"linkedservice_soruce_products_adls_accountKey": {
+			"value": ""
+		},
 		"linkedservices_sink_for_dataflow_accountKey": {
 			"value": ""
 		},
@@ -93,6 +99,18 @@
 			"value": "https://octstoragelatest.dfs.core.windows.net/"
 		},
 		"linkedservice_sink_sales_gen2_properties_typeProperties_url": {
+			"value": "https://octstoragelatest.dfs.core.windows.net/"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_server": {
+			"value": "octsqlbasedserver.database.windows.net"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_database": {
+			"value": "retailjoin"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_userName": {
+			"value": "adminsaap"
+		},
+		"linkedservice_soruce_products_adls_properties_typeProperties_url": {
 			"value": "https://octstoragelatest.dfs.core.windows.net/"
 		},
 		"linkedservices_sink_for_dataflow_properties_typeProperties_url": {

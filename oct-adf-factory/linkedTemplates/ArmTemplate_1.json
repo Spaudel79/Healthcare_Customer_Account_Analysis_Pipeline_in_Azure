@@ -13,6 +13,93 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/dataset_config_file_adls_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedservice_config_file_adls_source",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "load_config.csv",
+						"folderPath": "configs",
+						"fileSystem": "healthcare"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "database",
+						"type": "String"
+					},
+					{
+						"name": "datasource",
+						"type": "String"
+					},
+					{
+						"name": "tablename",
+						"type": "String"
+					},
+					{
+						"name": "loadtype",
+						"type": "String"
+					},
+					{
+						"name": "watermark",
+						"type": "String"
+					},
+					{
+						"name": "is_active",
+						"type": "String"
+					},
+					{
+						"name": "targetpath",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_for_dataflow_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedservice_for_dataflow_source",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "sales.csv",
+						"fileSystem": "test-output"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "[",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataset_restapi_source_sales')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -101,6 +188,72 @@
 					"quoteChar": "\""
 				},
 				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_sink_sqldb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedservice_sink_sqldb",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "retailjoin",
+					"table": "test"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_soruce_products_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedservice_soruce_products_adls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "products_sample (1).csv",
+						"fileSystem": "retail-files"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ProductID",
+						"type": "String"
+					},
+					{
+						"name": "ProductName",
+						"type": "String"
+					},
+					{
+						"name": "Category",
+						"type": "String"
+					},
+					{
+						"name": "Price",
+						"type": "String"
+					},
+					{
+						"name": "StockQuantity",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
@@ -909,7 +1062,14 @@
 								"referenceName": "datset_for_dataflow_json_source",
 								"type": "DatasetReference"
 							},
-							"name": "source1"
+							"name": "Salesjson"
+						},
+						{
+							"dataset": {
+								"referenceName": "dataset_soruce_products_adls",
+								"type": "DatasetReference"
+							},
+							"name": "Productssource1"
 						}
 					],
 					"sinks": [
@@ -919,6 +1079,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "dataset_sink_sqldb",
+								"type": "DatasetReference"
+							},
+							"name": "Finalsink"
 						}
 					],
 					"transformations": [
@@ -939,6 +1106,33 @@
 						},
 						{
 							"name": "selectforsalesID"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "sortbasedonSaleID"
+						},
+						{
+							"name": "RemovingNUll"
+						},
+						{
+							"name": "filterrowexists"
+						},
+						{
+							"name": "checkNullproduct"
+						},
+						{
+							"name": "window1"
+						},
+						{
+							"name": "rankbyQuantity"
+						},
+						{
+							"name": "FinalJOin"
+						},
+						{
+							"name": "removingduplicates"
 						}
 					],
 					"scriptLines": [
@@ -960,8 +1154,18 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'arrayOfDocuments') ~> source1",
-						"source1 split(!isNull(SaleID),",
+						"     documentForm: 'arrayOfDocuments') ~> Salesjson",
+						"source(output(",
+						"          ProductID as string,",
+						"          ProductName as string,",
+						"          Category as string,",
+						"          Price as string,",
+						"          StockQuantity as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Productssource1",
+						"Salesjson split(!isNull(SaleID),",
 						"     disjoint: false) ~> split1@(DatawithSalesID, DatawithID)",
 						"select1 derive(Quantity = iif(isNull(Quantity_30), iif(isNull(Quantity_60), Quantity_73, Quantity_60), Quantity_30)) ~> derivedColumnForValue3andcategory",
 						"split1@DatawithID select(mapColumn(",
@@ -997,6 +1201,36 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectforsalesID",
+						"union1 aggregate(groupBy(SaleID),",
+						"     each(match(name!='SaleID'), $$ = first($$))) ~> aggregate1",
+						"aggregate1 sort(asc(SaleID, true)) ~> sortbasedonSaleID",
+						"sortbasedonSaleID derive(ProductID = toInteger(iif(isNull(ProductID), 0, toInteger(ProductID))),",
+						"          SaleDate = iif(isNull(SaleDate), currentDate(), SaleDate),",
+						"          TotalAmount = toDouble(iif(isNull(TotalAmount), 0, toInteger(TotalAmount)))) ~> RemovingNUll",
+						"Productssource1 filter(not(isNull(ProductID))) ~> filterrowexists",
+						"filterrowexists derive(Category = iif(isNull(Category), 'Miscellaneous', Category),",
+						"          Price = iif(isNull(Price), 'Miscellaneous', Price)) ~> checkNullproduct",
+						"checkNullproduct window(over(Category),",
+						"     TotalQuantityByCategory = sum(toInteger(StockQuantity))) ~> window1",
+						"window1 rank(desc(StockQuantity, true),",
+						"     output(RankStock as long)) ~> rankbyQuantity",
+						"rankbyQuantity, RemovingNUll join(toInteger(Productssource1@ProductID) == RemovingNUll@ProductID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> FinalJOin",
+						"FinalJOin select(mapColumn(",
+						"          ProductID = Productssource1@ProductID,",
+						"          ProductName,",
+						"          Category,",
+						"          Price,",
+						"          StockQuantity,",
+						"          TotalQuantityByCategory,",
+						"          RankStock,",
+						"          ProductID = RemovingNUll@ProductID",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> removingduplicates",
 						"selectforsalesID sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -1006,13 +1240,25 @@
 						"     preCommands: [],",
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sink1"
+						"     skipDuplicateMapOutputs: true) ~> sink1",
+						"removingduplicates sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> Finalsink"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/datset_for_dataflow_json_source')]",
-				"[concat(variables('factoryId'), '/datasets/dataset_sink_for_dataflow')]"
+				"[concat(variables('factoryId'), '/datasets/dataset_soruce_products_adls')]",
+				"[concat(variables('factoryId'), '/datasets/dataset_sink_for_dataflow')]",
+				"[concat(variables('factoryId'), '/datasets/dataset_sink_sqldb')]"
 			]
 		},
 		{
@@ -1147,8 +1393,10 @@
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
+									"Salesjson": {},
+									"Productssource1": {},
+									"sink1": {},
+									"Finalsink": {}
 								}
 							},
 							"staging": {},

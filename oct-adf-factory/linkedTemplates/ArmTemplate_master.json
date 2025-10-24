@@ -59,6 +59,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'linkedservice_sink_sales_gen2'"
 		},
+		"linkedservice_sink_sqldb_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'linkedservice_sink_sqldb'"
+		},
+		"linkedservice_soruce_products_adls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'linkedservice_soruce_products_adls'"
+		},
 		"linkedservices_sink_for_dataflow_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'linkedservices_sink_for_dataflow'"
@@ -124,6 +132,22 @@
 			"defaultValue": "https://octstoragelatest.dfs.core.windows.net/"
 		},
 		"linkedservice_sink_sales_gen2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://octstoragelatest.dfs.core.windows.net/"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "octsqlbasedserver.database.windows.net"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "retailjoin"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "adminsaap"
+		},
+		"linkedservice_soruce_products_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://octstoragelatest.dfs.core.windows.net/"
 		},
@@ -197,6 +221,12 @@
 					"linkedservice_sink_sales_gen2_accountKey": {
 						"value": "[parameters('linkedservice_sink_sales_gen2_accountKey')]"
 					},
+					"linkedservice_sink_sqldb_password": {
+						"value": "[parameters('linkedservice_sink_sqldb_password')]"
+					},
+					"linkedservice_soruce_products_adls_accountKey": {
+						"value": "[parameters('linkedservice_soruce_products_adls_accountKey')]"
+					},
 					"linkedservices_sink_for_dataflow_accountKey": {
 						"value": "[parameters('linkedservices_sink_for_dataflow_accountKey')]"
 					},
@@ -247,6 +277,18 @@
 					},
 					"linkedservice_sink_sales_gen2_properties_typeProperties_url": {
 						"value": "[parameters('linkedservice_sink_sales_gen2_properties_typeProperties_url')]"
+					},
+					"linkedservice_sink_sqldb_properties_typeProperties_server": {
+						"value": "[parameters('linkedservice_sink_sqldb_properties_typeProperties_server')]"
+					},
+					"linkedservice_sink_sqldb_properties_typeProperties_database": {
+						"value": "[parameters('linkedservice_sink_sqldb_properties_typeProperties_database')]"
+					},
+					"linkedservice_sink_sqldb_properties_typeProperties_userName": {
+						"value": "[parameters('linkedservice_sink_sqldb_properties_typeProperties_userName')]"
+					},
+					"linkedservice_soruce_products_adls_properties_typeProperties_url": {
+						"value": "[parameters('linkedservice_soruce_products_adls_properties_typeProperties_url')]"
 					},
 					"linkedservices_sink_for_dataflow_properties_typeProperties_url": {
 						"value": "[parameters('linkedservices_sink_for_dataflow_properties_typeProperties_url')]"

@@ -59,6 +59,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'linkedservice_sink_sales_gen2'"
 		},
+		"linkedservice_sink_sqldb_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'linkedservice_sink_sqldb'"
+		},
+		"linkedservice_soruce_products_adls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'linkedservice_soruce_products_adls'"
+		},
 		"linkedservices_sink_for_dataflow_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'linkedservices_sink_for_dataflow'"
@@ -124,6 +132,22 @@
 			"defaultValue": "https://octstoragelatest.dfs.core.windows.net/"
 		},
 		"linkedservice_sink_sales_gen2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://octstoragelatest.dfs.core.windows.net/"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "octsqlbasedserver.database.windows.net"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "retailjoin"
+		},
+		"linkedservice_sink_sqldb_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "adminsaap"
+		},
+		"linkedservice_soruce_products_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://octstoragelatest.dfs.core.windows.net/"
 		},
@@ -399,6 +423,45 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/linkedservice_sink_sqldb')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('linkedservice_sink_sqldb_properties_typeProperties_server')]",
+					"database": "[parameters('linkedservice_sink_sqldb_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": true,
+					"authenticationType": "SQL",
+					"userName": "[parameters('linkedservice_sink_sqldb_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('linkedservice_sink_sqldb_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/linkedservice_soruce_products_adls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('linkedservice_soruce_products_adls_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('linkedservice_soruce_products_adls_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/linkedservices_sink_for_dataflow')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -474,97 +537,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/linkedservice_api_sales_http')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataset_config_file_adls_source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "linkedservice_config_file_adls_source",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "load_config.csv",
-						"folderPath": "configs",
-						"fileSystem": "healthcare"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "database",
-						"type": "String"
-					},
-					{
-						"name": "datasource",
-						"type": "String"
-					},
-					{
-						"name": "tablename",
-						"type": "String"
-					},
-					{
-						"name": "loadtype",
-						"type": "String"
-					},
-					{
-						"name": "watermark",
-						"type": "String"
-					},
-					{
-						"name": "is_active",
-						"type": "String"
-					},
-					{
-						"name": "targetpath",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/linkedservice_config_file_adls_source')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataset_for_dataflow_source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "linkedservice_for_dataflow_source",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "sales.csv",
-						"fileSystem": "test-output"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "[",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/linkedservice_for_dataflow_source')]"
 			]
 		}
 	]
