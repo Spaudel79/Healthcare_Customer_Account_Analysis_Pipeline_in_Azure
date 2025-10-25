@@ -13,6 +13,26 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/dataset_api_sales_http')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedservice_api_sales_http",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataset_config_file_adls_source')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -204,7 +224,7 @@
 				"type": "AzureSqlTable",
 				"schema": [],
 				"typeProperties": {
-					"schema": "retailjoin",
+					"schema": "dbo",
 					"table": "test"
 				}
 			},
@@ -251,6 +271,57 @@
 					},
 					{
 						"name": "StockQuantity",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataset_source_customers_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedservice_customers_adls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "customers_sample (4).csv",
+						"fileSystem": "retail-files"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "String"
+					},
+					{
+						"name": "CustomerName",
+						"type": "String"
+					},
+					{
+						"name": "Email",
+						"type": "String"
+					},
+					{
+						"name": "Phone",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "Country",
 						"type": "String"
 					}
 				]
@@ -1070,16 +1141,16 @@
 								"type": "DatasetReference"
 							},
 							"name": "Productssource1"
+						},
+						{
+							"dataset": {
+								"referenceName": "dataset_source_customers_adls",
+								"type": "DatasetReference"
+							},
+							"name": "Customers"
 						}
 					],
 					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "dataset_sink_for_dataflow",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						},
 						{
 							"dataset": {
 								"referenceName": "dataset_sink_sqldb",
@@ -1133,6 +1204,12 @@
 						},
 						{
 							"name": "removingduplicates"
+						},
+						{
+							"name": "filteronlyexistingcustomers"
+						},
+						{
+							"name": "derivedColumn1"
 						}
 					],
 					"scriptLines": [
@@ -1165,6 +1242,17 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Productssource1",
+						"source(output(",
+						"          CustomerID as string,",
+						"          CustomerName as string,",
+						"          Email as string,",
+						"          Phone as string,",
+						"          City as string,",
+						"          Country as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Customers",
 						"Salesjson split(!isNull(SaleID),",
 						"     disjoint: false) ~> split1@(DatawithSalesID, DatawithID)",
 						"select1 derive(Quantity = iif(isNull(Quantity_30), iif(isNull(Quantity_60), Quantity_73, Quantity_60), Quantity_30)) ~> derivedColumnForValue3andcategory",
@@ -1231,16 +1319,10 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> removingduplicates",
-						"selectforsalesID sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          {[} as string",
-						"     ),",
-						"     umask: 0022,",
-						"     preCommands: [],",
-						"     postCommands: [],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sink1",
+						"Customers filter(not(isNull(CustomerID))) ~> filteronlyexistingcustomers",
+						"filteronlyexistingcustomers derive(Country = iif(isNull(Country), 'USA', Country),",
+						"          Email = iif(isNull(Email), 'missingemail@email.com', Email),",
+						"          Phone = iif(Phone == 'None', '(123) 000-0000', Phone)) ~> derivedColumn1",
 						"removingduplicates sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     deletable:false,",
@@ -1257,7 +1339,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/datset_for_dataflow_json_source')]",
 				"[concat(variables('factoryId'), '/datasets/dataset_soruce_products_adls')]",
-				"[concat(variables('factoryId'), '/datasets/dataset_sink_for_dataflow')]",
+				"[concat(variables('factoryId'), '/datasets/dataset_source_customers_adls')]",
 				"[concat(variables('factoryId'), '/datasets/dataset_sink_sqldb')]"
 			]
 		},
@@ -1395,7 +1477,7 @@
 								"datasetParameters": {
 									"Salesjson": {},
 									"Productssource1": {},
-									"sink1": {},
+									"Customers": {},
 									"Finalsink": {}
 								}
 							},
@@ -1417,6 +1499,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/dataset_restapi_source_sales')]",
 				"[concat(variables('factoryId'), '/datasets/dataset_sink_sales_gen2')]",
+				"[concat(variables('factoryId'), '/datasets/dataset_api_sales_http')]",
 				"[concat(variables('factoryId'), '/datasets/dataset_sink_gen2_json')]",
 				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
 			]

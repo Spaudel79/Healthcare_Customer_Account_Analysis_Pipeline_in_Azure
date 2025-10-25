@@ -27,6 +27,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'linkedservice_config_file_adls_source'"
 		},
+		"linkedservice_customers_adls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'linkedservice_customers_adls'"
+		},
 		"linkedservice_dataflow_bank_csv_source_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'linkedservice_dataflow_bank_csv_source'"
@@ -93,9 +97,13 @@
 		},
 		"linkedservice_api_sales_http_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://storage.googleapis.com/kagglesdsdata/datasets/6838784/10999635/sales_sample.json?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20251017%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251017T142452Z&X-Goog-Expires=259200&X-Goog-SignedHeaders=host&X-Goog-Signature=9802af69af1004620850b10e960e74ce8ce0eea6a10d70ae76efc8a1c6be6c5a30b03b6e654ff9109cefab162aeed59598962771ae9c7edfdf179c813c0cc62cf4b25179b6a0e7cccff73fef51499bff9517a4e27b13042cba8897d2d9edeac82bef950927a05aa0298f24f8e0df619eeb8fea75136b47474fedd55e792f1f535ec2a8b17ebd05328a4fbfb6e950087b9753bccbec7bc718fb6ec09b0663e230f588857cdf46c2cc9c70cf3efb17191eace4353d9de79277ecc1c31870957ddccfbe4c1ba83fbdd054dcc2c0ef35a601697c4f76917cdaf1709a59885857c47abbf96d8ad9b22a45cc3232756b108c30d7400e4cde23fbd937c23e304c9472c4"
+			"defaultValue": "https://storage.googleapis.com/kagglesdsdata/datasets/6838784/10999635/sales_sample.json?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20251023%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251023T175134Z&X-Goog-Expires=259200&X-Goog-SignedHeaders=host&X-Goog-Signature=beeab598f8b7d643118ae264f13fcdc415962fa8bd28c71e5aeacf73b373ee35ff23e47e5b77d4a4333ee477b73a556184265fd821497f72a936848b06ffb907c24fea305feee5af6f7c8ee1d89dd031561e5df9c165827255944d3f7b74e1e4285248c2d20119eacbe8826373cb50d990aaafbc6ad18d39a3901f3bb0f69d8b9ca512834bd4186e235aa02e47a546a022bbbeb05a0dbcad0645b8783aad4fb10785a39b6b42dfcb80ea90658938f7d95c962f056787f04bbbc2bd22339c65cd4e0010ce97c1adaf658a9287c20541a9692f9659fcfb417402010cef76688a59ceadef523d857723d65c72774ae96e9118d26de08e75e9cf56f0b273247556e6"
 		},
 		"linkedservice_config_file_adls_source_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://octstoragelatest.dfs.core.windows.net/"
+		},
+		"linkedservice_customers_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://octstoragelatest.dfs.core.windows.net/"
 		},
@@ -197,6 +205,9 @@
 					"linkedservice_config_file_adls_source_accountKey": {
 						"value": "[parameters('linkedservice_config_file_adls_source_accountKey')]"
 					},
+					"linkedservice_customers_adls_accountKey": {
+						"value": "[parameters('linkedservice_customers_adls_accountKey')]"
+					},
 					"linkedservice_dataflow_bank_csv_source_accountKey": {
 						"value": "[parameters('linkedservice_dataflow_bank_csv_source_accountKey')]"
 					},
@@ -250,6 +261,9 @@
 					},
 					"linkedservice_config_file_adls_source_properties_typeProperties_url": {
 						"value": "[parameters('linkedservice_config_file_adls_source_properties_typeProperties_url')]"
+					},
+					"linkedservice_customers_adls_properties_typeProperties_url": {
+						"value": "[parameters('linkedservice_customers_adls_properties_typeProperties_url')]"
 					},
 					"linkedservice_dataflow_bank_csv_source_properties_typeProperties_url": {
 						"value": "[parameters('linkedservice_dataflow_bank_csv_source_properties_typeProperties_url')]"
