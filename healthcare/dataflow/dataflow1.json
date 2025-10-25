@@ -28,9 +28,6 @@
 			],
 			"sinks": [
 				{
-					"name": "sink1"
-				},
-				{
 					"dataset": {
 						"referenceName": "dataset_sink_sqldb",
 						"type": "DatasetReference"
@@ -202,12 +199,6 @@
 				"filteronlyexistingcustomers derive(Country = iif(isNull(Country), 'USA', Country),",
 				"          Email = iif(isNull(Email), 'missingemail@email.com', Email),",
 				"          Phone = iif(Phone == 'None', '(123) 000-0000', Phone)) ~> derivedColumn1",
-				"selectforsalesID sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     preCommands: [],",
-				"     postCommands: []) ~> sink1",
 				"removingduplicates sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
