@@ -596,6 +596,40 @@
 												}
 											}
 										]
+									},
+									{
+										"name": "Insertupdatedrows",
+										"type": "Lookup",
+										"dependsOn": [
+											{
+												"activity": "IncrementalCopying",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "AzureDatabricksDeltaLakeSource",
+												"query": "@concat('insert into audit.load_logs(data_source,tablename,numberofrowscopied,watermarkcolumnname,loaddate) values (''',item().datasource,''',''',item().tablename,''',''',activity('Incremental_Load_CP').output.rowscopied,''',''',item().watermark,''',''',utcNow(),''')')"
+											},
+											"dataset": {
+												"referenceName": "generic_dataset_for_audit_parquet_databricks",
+												"type": "DatasetReference",
+												"parameters": {
+													"schema_name": "audit",
+													"table_name": "load_logs"
+												}
+											}
+										}
 									}
 								],
 								"ifTrueActivities": [
