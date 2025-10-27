@@ -502,7 +502,10 @@
 										"typeProperties": {
 											"source": {
 												"type": "AzureDatabricksDeltaLakeSource",
-												"query": "@concat('select coalesce(cast(max(loaddate) as date),''1900-01-01'') as last_fetched_date from audit.load_logs where data_source=''',item().datasource,''' and tablename=''',item().tablename,'''')"
+												"query": {
+													"value": "@concat('select coalesce(cast(max(loaddate) as date),''1900-01-01'') as last_fetched_date from audit.load_logs where data_source=''',item().datasource,''' and tablename=''',item().tablename,'''')",
+													"type": "Expression"
+												}
 											},
 											"dataset": {
 												"referenceName": "generic_dataset_for_audit_parquet_databricks",
@@ -600,6 +603,8 @@
 									{
 										"name": "Insertupdatedrows",
 										"type": "Lookup",
+										"state": "Inactive",
+										"onInactiveMarkAs": "Succeeded",
 										"dependsOn": [
 											{
 												"activity": "IncrementalCopying",
@@ -619,7 +624,10 @@
 										"typeProperties": {
 											"source": {
 												"type": "AzureDatabricksDeltaLakeSource",
-												"query": "@concat('insert into audit.load_logs(data_source,tablename,numberofrowscopied,watermarkcolumnname,loaddate) values (''',item().datasource,''',''',item().tablename,''',''',activity('Incremental_Load_CP').output.rowscopied,''',''',item().watermark,''',''',utcNow(),''')')"
+												"query": {
+													"value": "@concat('insert into audit.load_logs(data_source,tablename,numberofrowscopied,watermarkcolumnname,loaddate) values (''',item().datasource,''',''',item().tablename,''',''',activity('IncrementalCopying').output.rowscopied,''',''',item().watermark,''',''',utcNow(),''')')",
+													"type": "Expression"
+												}
 											},
 											"dataset": {
 												"referenceName": "generic_dataset_for_audit_parquet_databricks",
