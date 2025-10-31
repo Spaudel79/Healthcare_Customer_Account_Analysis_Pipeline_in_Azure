@@ -603,8 +603,6 @@
 									{
 										"name": "Insertupdatedrows",
 										"type": "Lookup",
-										"state": "Inactive",
-										"onInactiveMarkAs": "Succeeded",
 										"dependsOn": [
 											{
 												"activity": "IncrementalCopying",
